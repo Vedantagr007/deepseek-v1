@@ -9,11 +9,11 @@ const GameSelection = ({ selectedGames, toggleGameSelection, games }) => {
           <div key={game.id} className="game-item">
             <label className="checkbox-container">
               <input
-                type="checkbox" // Corrected from "checkpoint"
+                type="checkbox"
                 checked={selectedGames.includes(game.id)}
                 onChange={() => toggleGameSelection(game.id)}
               />
-              <span className="checkmark"></span>
+              {/* <span className="checkmark"></span> */}
               <span className="game-icon">{game.icon}</span>
               <span className="game-name">{game.name}</span>
             </label>

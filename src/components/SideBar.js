@@ -7,6 +7,11 @@ const SideBar = ({
   toggleSearch,
   logo,
   handleOverlayClick,
+  darkMode,
+  chats,
+  currentChatId,
+  setCurrentChatId,
+  startNewChat,
 }) => {
   return (
     <>
@@ -14,17 +19,52 @@ const SideBar = ({
         <div className="sidebar-overlay" onClick={handleOverlayClick}></div>
       )}
       <div
-        className={`sidebar ${sideBarOpen ? "open" : ""} ${
-          window.innerWidth <= 768 ? "half-open" : ""
-        }`}
+        className={`sidebar ${darkMode ? "bg-gray-800" : "bg-gray-100"} ${
+          sideBarOpen ? "open" : ""
+        } ${window.innerWidth <= 768 ? "half-open" : ""}`}
       >
         <div className="sidebar-content">
           <div className="sidebar-header">
             <div className="brand">
               <img src={logo} alt="GameCre8 Logo" className="brand-logo" />
-              <h1>GameCre8</h1>
+              <h1 className={darkMode ? "text-white" : "text-black"}>GameCre8</h1>
             </div>
-            <button className="version-dropdown" onClick={toggleVersionPopUp}>
+          </div>
+          <div className="button-group space-y-0">
+            <button 
+              className="new-chat-button borderless w-full mb-0 p-0"
+              onClick={startNewChat}
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className={darkMode ? "stroke-white" : "stroke-black"}
+              >
+                <path
+                  d="M4 2C2.89543 2 2 2.89543 2 4V16C2 17.1046 2.89543 18 4 18H8L12 22L16 18H20C21.1046 18 22 17.1046 22 16V4C22 2.89543 21.1046 2 20 2H4Z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+              </svg>
+              <span className={darkMode ? "text-white" : "text-black"}>New chat</span>
+            </button>
+            <div className="chat-history">
+              {chats.map(chat => (
+                <div
+                  key={chat.id}
+                  className={`chat-history-item ${chat.id === currentChatId ? 'active' : ''}`}
+                  onClick={() => setCurrentChatId(chat.id)}
+                >
+                  <span className={darkMode ? "text-white" : "text-black"}>
+                    {chat.messages[0]?.content.slice(0, 30) || 'New Chat'}...
+                  </span>
+                </div>
+              ))}
+            </div>
+            <button className="new-chat-button borderless w-full mb-0 p-0">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -35,13 +75,23 @@ const SideBar = ({
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                className={darkMode ? "stroke-white" : "stroke-black"}
               >
-                <polyline points="6 9 12 15 18 9"></polyline>
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
-              <span>Version Free</span>
+              <span
+                className={darkMode ? "text-white" : "text-black"}
+                style={{ transform: "translateX(5px)" }}
+              >
+                History
+              </span>
             </button>
           </div>
-          <button className="new-chat-button borderless">
+          <button
+            className="mobile-close-button mt-1"
+            onClick={toggleSideBar}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -52,56 +102,7 @@ const SideBar = ({
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
-            >
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            New chat
-          </button>
-          <div className="history-header">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
-            </svg>
-            <span>History</span>
-            <button className="history-search-button" onClick={toggleSearch}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-            </button>
-          </div>
-          <button className="mobile-close-button" onClick={toggleSideBar}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              className={darkMode ? "stroke-white" : "stroke-black"}
             >
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>

@@ -1,9 +1,11 @@
 import React from "react";
 
 const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo }) => {
+  // Define the color style based on dark mode
+  const colorStyle = darkMode ? { color: 'white' } : {};
   return (
     <header>
-      <button className="sidebar-toggle" onClick={toggleSidebar}>
+      <button className="sidebar-toggle" onClick={toggleSidebar} style={colorStyle}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
@@ -19,12 +21,12 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
           <line x1="9" y1="3" x2="9" y2="21"></line>
         </svg>
       </button>
-      <div className="brand">
-        <img src={logo} alt="GameCre8 Logo" className="brand-logo" />
-        <span>GameCre8</span>
+      <div className="brand" style={{transform: "translateX(65px)"}}>
+        <img src={logo} alt="GameCre8 Logo" className="brand-logo text-2xl" />
+        <span style={{ fontWeight: 'bold', fontSize: '1.5em' }}>GameCre8</span>
       </div>
       <div className="header-controls larger">
-        <button className="search-button" onClick={toggleSearch}>
+        <button className="search-button" onClick={toggleSearch} style={colorStyle}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -40,8 +42,8 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
         </button>
-        <button className="login-button">Login</button>
-        <button className="theme-toggle" onClick={toggleDarkMode}>
+        <button className="login-button" style={{...colorStyle}}>Login</button>
+        <button className="theme-toggle" onClick={toggleDarkMode} style={colorStyle}>
           {darkMode ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"

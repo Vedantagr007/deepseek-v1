@@ -8,7 +8,11 @@ const ChatContainer = ({
   toggleGameSelection,
   chatResponse,
   games,
+  chats,
+  currentChatId,
 }) => {
+  const currentChat = Array.isArray(chats) ? chats.find(chat => chat.id === currentChatId) : null;
+
   return (
     <div className="chat-container">
       {showWelcome ? (
@@ -20,6 +24,15 @@ const ChatContainer = ({
           games={games}
         />
       )}
+      <div className="chat-messages">
+        {currentChat?.messages.map((message, index) => (
+          <div key={index} className={`chat-message ${message.role}`}>
+            <div className="message-content">
+              <div dangerouslySetInnerHTML={{ __html: message.content }}></div>
+            </div>
+          </div>
+        ))}
+      </div>
       {chatResponse && (
         <div
           id="response"

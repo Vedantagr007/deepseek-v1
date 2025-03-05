@@ -14,6 +14,8 @@ function App() {
   const [selectedGames, setSelectedGames] = useState([]);
   const [showWelcome, setShowWelcome] = useState(true);
   const [chatResponse, setChatResponse] = useState("");
+  const [chats, setChats] = useState([]);
+  const [currentChatId, setCurrentChatId] = useState(null);
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -25,9 +27,28 @@ function App() {
   };
   const toggleVersionPopup = () => setVersionPopupOpen(!versionPopupOpen);
 
+  const startNewChat = () => {
+    const newChatId = Date.now().toString();
+    setChats([{ id: newChatId, messages: [] }, ...chats]);
+    setCurrentChatId(newChatId);
+    setShowWelcome(false);
+  };
+
   const handleSendMessage = async () => {
     if (!message) return;
+    const userMessage = { role: 'user', content: message };
+    const updatedChats = chats.map(chat => {
+      if (chat.id === currentChatId) {
+        return {
+          ...chat,
+          messages: [...chat.messages, userMessage]
+        };
+      }
+      return chat;
+    });
+    setChats(updatedChats);
     setChatResponse("Loading...");
+
     try {
       const response = await fetch(
         "https://openrouter.ai/api/v1/chat/completions",
@@ -35,7 +56,7 @@ function App() {
           method: "POST",
           headers: {
             Authorization:
-              "Bearer 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",
+              "Bearer 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",
             "HTTP-Referer": "https://www.webstylepress.com",
             "X-Title": "WebStylePress",
             "Content-Type": "application/json",
@@ -49,6 +70,17 @@ function App() {
       const data = await response.json();
       const markdownText =
         data.choices?.[0]?.message?.content || "No response received.";
+      const botMessage = { role: 'assistant', content: marked.parse(markdownText) };
+
+      setChats(chats.map(chat => {
+        if (chat.id === currentChatId) {
+          return {
+            ...chat,
+            messages: [...chat.messages, botMessage]
+          };
+        }
+        return chat;
+      }));
       setChatResponse(marked.parse(markdownText));
     } catch (error) {
       setChatResponse("Error: " + error.message);
@@ -95,6 +127,10 @@ function App() {
         toggleSearch={toggleSearch}
         logo={logo}
         handleOverlayClick={handleOverlayClick}
+        chats={chats}
+        currentChatId={currentChatId}
+        setCurrentChatId={setCurrentChatId}
+        startNewChat={startNewChat}
       />
       <MainContent
         darkMode={darkMode}
@@ -114,6 +150,8 @@ function App() {
         handleSendMessage={handleSendMessage}
         games={games}
         logo={logo}
+        chats={chats}
+        currentChatId={currentChatId}
       />
     </div>
   );
