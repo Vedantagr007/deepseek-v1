@@ -51,18 +51,18 @@ function App() {
 
     try {
       const response = await fetch(
-        "https://openrouter.ai/api/v1/chat/completions",
+        `${process.env.REACT_APP_API_URL}`,
         {
           method: "POST",
           headers: {
             Authorization:
-              "Bearer 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",
-            "HTTP-Referer": "https://www.webstylepress.com",
-            "X-Title": "WebStylePress",
+              `Bearer ${process.env.REACT_APP_API_KEY}`,
+            "HTTP-Referer": `${process.env.REACT_APP_HTTP_REFERER}`,
+            "X-Title": `${process.env.REACT_APP_X_TITLE}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "deepseek/deepseek-r1:free",
+            model: `${process.env.REACT_APP_MODEL}`,
             messages: [{ role: "user", content: message }],
           }),
         }

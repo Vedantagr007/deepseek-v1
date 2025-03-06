@@ -351,7 +351,7 @@ header {
 
 .checkbox-container:hover input ~ .checkmark {
   background-color: #ccc;
-  margin-right: 0.5rem;
+  /* margin-right: 0.5rem; */
 }
 
 .game-name {
@@ -665,23 +665,65 @@ header {
 
 /* Chatbot response styling from original HTML */
 #response {
-  margin-top: 20px;
-  padding: 10px;
-  min-height: 50px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
 }
+
+#response-section {
+
+  margin-bottom: 15px;
+  padding: 35px;
+  border-left: 3px solid var(--primary-color);
+}
+
 #response h3 {
-  color: #333;
-  font-size: 1.2em;
+  color: var(--primary-color);
+  font-size: 1.3em;
+  margin-bottom: 10px;
 }
-#response strong {
-  color: #d9534f;
+
+#response-highlight-high {
+  color: #e63946;
+  font-weight: bold;
+  font-size: 1.1em;
 }
+
+#response-highlight-medium {
+  color: #457b9d;
+  font-weight: 500;
+}
+
+#response-highlight-low {
+  color: #2a9d8f;
+}
+
 #response ul {
   padding-left: 20px;
+  list-style-type: none;
 }
+
 #response li {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  position: relative;
+  padding-left: 15px;
 }
+
+#response li:before {
+  content: "•";
+  color: var(--primary-color);
+  position: absolute;
+  left: 0;
+}
+
+.dark #response {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
 .game-section {
   display: flex;
   justify-content: center;

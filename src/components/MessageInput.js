@@ -1,6 +1,12 @@
 import React from "react";
 
 const MessageInput = ({ message, setMessage, handleSendMessage }) => {
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
+    }
+  };
+
   return (
     <div className="message-input">
       <input
@@ -8,6 +14,7 @@ const MessageInput = ({ message, setMessage, handleSendMessage }) => {
         placeholder="Type your message to GameCre8"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
+        onKeyDown={handleKeyDown}
       />
       {message && (
         <button className="send-button" onClick={handleSendMessage}>
