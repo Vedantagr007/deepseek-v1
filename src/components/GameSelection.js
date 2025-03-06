@@ -3,7 +3,7 @@ import React from "react";
 const GameSelection = ({ selectedGames, toggleGameSelection, games }) => {
   return (
     <div className="game-selection">
-      <h3 className="">Select Games to Play</h3>
+      <h4 className="">Select web-link games to play</h4>
       <div className="game-list">
         {games.map((game) => (
           <div key={game.id} className="game-item">

@@ -21,9 +21,15 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
           <line x1="9" y1="3" x2="9" y2="21"></line>
         </svg>
       </button>
-      <div className="brand" style={{transform: "translateX(65px)"}}>
+      <div className="brand" style={{transform: "translateX(75px)"}}>
         <img src={logo} alt="GameCre8 Logo" className="brand-logo text-2xl" />
-        <span style={{ fontWeight: 'bold', fontSize: '1.5em' }}>GameCre8</span>
+        <span style={{ 
+          fontWeight: 'bold', 
+          fontSize: '1.5em',
+          background: 'linear-gradient(to right, #8b5cf6, #ec4899)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
+        }}>GameCre8</span>
       </div>
       <div className="header-controls larger">
         <button className="search-button" onClick={toggleSearch} style={colorStyle}>

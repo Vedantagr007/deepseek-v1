@@ -736,3 +736,110 @@ header {
   margin: 0 auto;
   padding: 0 1rem;
 }
+
+/* Add these styles to your existing CSS */
+.game-preview-container {
+  margin-top: 20px;
+  border: 1px solid #ddd;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+.preview-container {
+  display: flex;
+  gap: 20px;
+}
+
+.code-preview {
+  width: 50%;
+  background-color: #f4f4f4;
+  padding: 10px;
+  overflow-x: auto;
+  border-radius: 4px;
+}
+
+.game-iframe {
+  width: 50%;
+  height: 500px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.game-preview {
+  margin: 20px 0;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.preview-title {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.preview-container {
+  display: flex;
+  gap: 20px;
+  min-height: 400px;
+}
+
+.code-preview {
+  flex: 1;
+  background: #2d2d2d;
+  padding: 15px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.code-preview pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.code-preview code {
+  color: #e6e6e6;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.iframe-container {
+  flex: 1;
+  min-height: 400px;
+}
+
+.game-iframe {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+}
+
+/* Dark mode styles */
+.dark .game-preview {
+  background: #2d2d2d;
+}
+
+.dark .preview-title {
+  color: #fff;
+}
+
+.dark .code-preview {
+  background: #1e1e1e;
+}
+
+@media (max-width: 768px) {
+  .preview-container {
+    flex-direction: column;
+  }
+  
+  .code-preview,
+  .iframe-container {
+    width: 100%;
+  }
+}
