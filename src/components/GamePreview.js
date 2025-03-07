@@ -5,7 +5,7 @@ const GamePreview = ({ gameCode }) => {
 
   return (
     <div className="game-preview">
-      <h3 className="preview-title">Game Preview</h3>
+      <h3 className="preview-title"><span className='preview-heading'>Game Preview</span></h3>
       <div className="preview-container">
         <div className="iframe-container">
           <iframe
