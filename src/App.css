@@ -26,6 +26,10 @@
 }
 
 .dark {
+--bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --text-primary: #f3f4f6;
+  --border-color: #374151;
   background-color: var(--background-dark);
   color: var(--text-dark);
 }
@@ -432,6 +436,7 @@ header {
   border-radius: 20px;
   width: 80%;
   max-width: 500px;
+  justify-content: center;
 }
 
 .search-popup-content input {
@@ -452,15 +457,26 @@ header {
   border-radius: 20px;
   cursor: pointer;
   font-size: 1rem;
+  display: block;
+  margin: 1rem auto 0;
+  position: relative;
 }
 
 .version-popup-content h3 {
   margin-bottom: 1rem;
   font-size: 1.2rem;
+  text-align: center;
+}
+
+.version-popup-underline{
+  border: 1.5px solid #8b7fe8;
+  width: 50%;
+  /* margin-bottom: 5px; */
+  transform: translateY(-10px) translateX(109px);
 }
 
 .version-popup-content ul {
-  list-style-type: none;
+  list-style-type: disc;
   margin-bottom: 1rem;
 }
 
