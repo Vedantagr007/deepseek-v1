@@ -4,6 +4,7 @@ import "./App.css";
 import logo from "./logo.png";
 import SideBar from "./components/SideBar";
 import MainContent from "./components/MainContent";
+import GamePreview from "./components/GamePreview";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
@@ -16,6 +17,7 @@ function App() {
   const [chatResponse, setChatResponse] = useState("");
   const [chats, setChats] = useState([]);
   const [currentChatId, setCurrentChatId] = useState(null);
+  const [gameCode, setGameCode] = useState("");
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -48,6 +50,7 @@ function App() {
     });
     setChats(updatedChats);
     setChatResponse("Loading...");
+    setGameCode("");
 
     try {
       const response = await fetch(
@@ -63,13 +66,25 @@ function App() {
           },
           body: JSON.stringify({
             model: `${process.env.REACT_APP_MODEL}`,
-            messages: [{ role: "user", content: message }],
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a game development assistant. When asked to create a game, provide a detailed explanation and include an HTML/JavaScript game code snippet.'
+              },
+              { role: 'user', content: message }
+            ],
           }),
         }
       );
       const data = await response.json();
       const markdownText =
         data.choices?.[0]?.message?.content || "No response received.";
+      
+      const gameMatch = markdownText.match(/```html([\s\S]*?)```/);
+      if (gameMatch) {
+        setGameCode(gameMatch[1].trim());
+      }
+
       const botMessage = { role: 'assistant', content: marked.parse(markdownText) };
 
       setChats(chats.map(chat => {
@@ -153,6 +168,7 @@ function App() {
         chats={chats}
         currentChatId={currentChatId}
       />
+      <GamePreview gameCode={gameCode}/>
     </div>
   );
 }
