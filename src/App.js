@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from "react";
 import { marked } from "marked";
 import "./App.css";
@@ -6,6 +7,7 @@ import SideBar from "./components/SideBar";
 import MainContent from "./components/MainContent";
 
 function App() {
+
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [message, setMessage] = useState("");
@@ -87,36 +89,38 @@ function App() {
   }, []);
 
   return (
-    <div className={`app ${darkMode ? "dark" : "light"}`}>
-      <SideBar
-        sideBarOpen={sidebarOpen}
-        toggleSideBar={toggleSidebar}
-        toggleVersionPopUp={toggleVersionPopup}
-        toggleSearch={toggleSearch}
-        logo={logo}
-        handleOverlayClick={handleOverlayClick}
-      />
-      <MainContent
-        darkMode={darkMode}
-        toggleDarkMode={toggleDarkMode}
-        sidebarOpen={sidebarOpen}
-        toggleSidebar={toggleSidebar}
-        searchOpen={searchOpen}
-        toggleSearch={toggleSearch}
-        versionPopupOpen={versionPopupOpen}
-        toggleVersionPopup={toggleVersionPopup}
-        showWelcome={showWelcome}
-        selectedGames={selectedGames}
-        toggleGameSelection={toggleGameSelection}
-        chatResponse={chatResponse}
-        message={message}
-        setMessage={setMessage}
-        handleSendMessage={handleSendMessage}
-        games={games}
-        logo={logo}
-      />
-    </div>
+    
+      <div className={`app ${darkMode ? "dark" : "light"}`}>
+        <SideBar
+          sideBarOpen={sidebarOpen}
+          toggleSideBar={toggleSidebar}
+          toggleVersionPopUp={toggleVersionPopup}
+          toggleSearch={toggleSearch}
+          logo={logo}
+          handleOverlayClick={handleOverlayClick}
+        />
+        <MainContent
+          darkMode={darkMode}
+          toggleDarkMode={toggleDarkMode}
+          sidebarOpen={sidebarOpen}
+          toggleSidebar={toggleSidebar}
+          searchOpen={searchOpen}
+          toggleSearch={toggleSearch}
+          versionPopupOpen={versionPopupOpen}
+          toggleVersionPopup={toggleVersionPopup}
+          showWelcome={showWelcome}
+          selectedGames={selectedGames}
+          toggleGameSelection={toggleGameSelection}
+          chatResponse={chatResponse}
+          message={message}
+          setMessage={setMessage}
+          handleSendMessage={handleSendMessage}
+          games={games}
+          logo={logo}
+        />
+      </div>
   );
+  
 }
 
 export default App;

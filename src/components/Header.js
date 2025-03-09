@@ -1,6 +1,63 @@
-import React from "react";
+"use client"
+import React, { useRef } from "react";
+import { useGoogleLogin } from '@react-oauth/google';
+import { useDispatch, useSelector } from 'react-redux';
+import { removeToken, storeToken } from '../store/slice/token';
+import googleAuth from '../store/api/authReducer';
+import { useEffect } from 'react';
+import { resetUser } from "../store/slice/user";
+
+
+
+    {
+      /*User data format being fetched from Google Login:
+      email -------- user's email
+      email_verified    ------ if user did email verification yet or nah
+      given_name  ----------- user's gmail name
+      name ----------------- user's gmail name
+      picture ---------------- url of user's profile picture
+      id ----------------------  user's id provided by Google
+    */}
 
 const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo }) => {
+
+  
+        const checkToken = useRef(false);
+        const user = useSelector((state)=>state.user.data);
+        const dispatch = useDispatch(); 
+
+
+        {/* Google Login */}
+        const googleLogin = useGoogleLogin({
+          onSuccess: async (tokenResponse) => {
+            dispatch(storeToken(tokenResponse))
+            dispatch(googleAuth(tokenResponse.access_token))
+          },
+          onError: errorResponse => console.log(errorResponse),
+          
+        });
+
+        const googleLogout =()=>{
+          localStorage.removeItem("access_token");
+          dispatch(removeToken());
+          dispatch(resetUser())
+        }
+
+      {/* Checking saved tokens in localStorage */}
+      {/* Edit here as you like , write better logistics */}
+      useEffect(()=>{
+          const saved_token = JSON.parse(localStorage.getItem("access_token"));
+          if(!checkToken.current && saved_token && Date.now()<saved_token.expires_in ){
+              dispatch(googleAuth(saved_token.access_token));
+              checkToken.current = true;
+          }
+          else{
+            if(saved_token && Date.now()>=saved_token.expires_in){
+                localStorage.removeItem("access_time");
+            }
+          }
+      },[])
+
   return (
     <header>
       <button className="sidebar-toggle" onClick={toggleSidebar}>
@@ -40,7 +97,20 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
         </button>
-        <button className="login-button">Login</button>
+        {user ? (<>
+            {/* Just a trial*/ }
+            <svg width="40" height="40">
+              <defs>
+                  <clipPath id="circleMask">
+                      <circle cx="20" cy="20" r="20"></circle>
+                  </clipPath>
+              </defs>
+             {user.picture ? ( <image href={user.picture}  width="40" height="40" clipPath="url(#circleMask)"></image>):(<></>)}
+            </svg>
+            <h4>{user.name} (Made it frankly for testing)</h4>
+            <button className="login-button" onClick={googleLogout}>LogOut</button>
+        </>):(
+        <button className="login-button" onClick={googleLogin}>Login</button>)}
         <button className="theme-toggle" onClick={toggleDarkMode}>
           {darkMode ? (
             <svg
