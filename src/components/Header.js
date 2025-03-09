@@ -1,31 +1,66 @@
 "use client"
 import React, { useRef } from "react";
-import { useGoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin , useGoogleOneTapLogin } from '@react-oauth/google';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeToken, storeToken } from '../store/slice/token';
 import googleAuth from '../store/api/authReducer';
 import { useEffect } from 'react';
-import { resetUser } from "../store/slice/user";
+import { ifErrorUser, resetUser, setUser } from "../store/slice/user";
+import {jwtDecode} from 'jwt-decode'
 
 
 
-    {
-      /*User data format being fetched from Google Login:
+    {/*
+      User data format being fetched from Google Login:
       email -------- user's email
       email_verified    ------ if user did email verification yet or nah
       given_name  ----------- user's gmail name
-      name ----------------- user's gmail name
+      name ----------------- user's full name
       picture ---------------- url of user's profile picture
-      id ----------------------  user's id provided by Google
+      sub ----------------------  user's id provided by Google
     */}
+
+    {/* useGoogleLogin giving tokens of expiry time: 1 hr */}
 
 const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo }) => {
 
-  
+       
         const checkToken = useRef(false);
         const user = useSelector((state)=>state.user.data);
         const dispatch = useDispatch(); 
+        
 
+         {/* GoogleOneTapLogin */}
+        useGoogleOneTapLogin({
+          onSuccess: (credentialResponse) => {
+            console.log(credentialResponse.credential)
+               const decode = jwtDecode(credentialResponse.credential);
+               const decodedData = {
+                    email: decode.email,
+                    sub: decode.sub,
+                    given_name: decode.given_name,
+                    name: decode.name,
+                    picture: decode.picture,
+                    email_verified: decode.email_verified
+                }
+
+               dispatch(setUser(decodedData))
+          },
+          onError: () => {
+              dispatch(ifErrorUser('one_tap_error'))
+          },
+          promptMomentNotification: (notification) => {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                  dispatch(ifErrorUser('one_tap_failed'))
+            }
+          },
+          auto_select: true,
+          cancel_on_tap_outside: false,
+          context: 'signin', 
+          use_fedcm_for_prompt:true,
+          disabled: !!user
+        });
+      
 
         {/* Google Login */}
         const googleLogin = useGoogleLogin({
@@ -36,7 +71,8 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
           onError: errorResponse => console.log(errorResponse),
           
         });
-
+        
+        {/* Google logOut */}
         const googleLogout =()=>{
           localStorage.removeItem("access_token");
           dispatch(removeToken());
@@ -47,13 +83,13 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
       {/* Edit here as you like , write better logistics */}
       useEffect(()=>{
           const saved_token = JSON.parse(localStorage.getItem("access_token"));
-          if(!checkToken.current && saved_token && Date.now()<saved_token.expires_in ){
+          if(!user && !checkToken.current && saved_token && Date.now()<saved_token.expires_in ){
               dispatch(googleAuth(saved_token.access_token));
               checkToken.current = true;
           }
           else{
             if(saved_token && Date.now()>=saved_token.expires_in){
-                localStorage.removeItem("access_time");
+                localStorage.removeItem("access_token");
             }
           }
       },[])
@@ -108,7 +144,7 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
              {user.picture ? ( <image href={user.picture}  width="40" height="40" clipPath="url(#circleMask)"></image>):(<></>)}
             </svg>
             <h4>{user.name} (Made it frankly for testing)</h4>
-            <button className="login-button" onClick={googleLogout}>LogOut</button>
+            <button className="login-button" onClick={googleLogout}>Sign out</button>
         </>):(
         <button className="login-button" onClick={googleLogin}>Login</button>)}
         <button className="theme-toggle" onClick={toggleDarkMode}>

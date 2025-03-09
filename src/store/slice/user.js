@@ -12,6 +12,10 @@ const userSlice = createSlice({
     name:'user',
     initialState,
     reducers: {
+        setUser: (state,action)=>{
+            state.data = action.payload;
+            state.status = 'succeeded'
+        },
         resetUser: (state)=>{
             state.data = null;
             state.error = null;
@@ -19,10 +23,7 @@ const userSlice = createSlice({
         },
         // for customized errors, if you like
         ifErrorUser: (state,action)=>{
-            if(!state.user){
-                state.error = action.payload;
-                return state.error;
-            }
+            state.error = action.payload;
         }
     },
     extraReducers: (builder)=>{
@@ -42,5 +43,5 @@ const userSlice = createSlice({
     }
 })
 
-export const {ifErrorUser,resetUser} = userSlice.actions
+export const {ifErrorUser,resetUser , setUser} = userSlice.actions
 export default userSlice.reducer;

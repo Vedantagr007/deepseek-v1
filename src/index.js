@@ -13,6 +13,7 @@ import store from './store/store';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <Provider store={store}>
       <GoogleOAuthProvider clientId='678245269361-cta5ot0fp3taoocr5i88s7vk77d7geb4.apps.googleusercontent.com'>
         <App />

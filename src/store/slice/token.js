@@ -21,10 +21,7 @@ const tokenSlice = createSlice({
             state.expires_in = null;
         },
         ifErrorToken: (state,action)=>{
-            if(!state.access_token){
-                state.error = action.payload;
-                return state.error;
-            }
+            state.error = action.payload;
         }
     },
 })
