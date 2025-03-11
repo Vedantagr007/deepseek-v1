@@ -2,11 +2,12 @@
 import React, { useRef } from "react";
 import { useGoogleLogin , useGoogleOneTapLogin } from '@react-oauth/google';
 import { useDispatch, useSelector } from 'react-redux';
-import { removeToken, storeToken } from '../store/slice/token';
 import googleAuth from '../store/api/authReducer';
 import { useEffect } from 'react';
 import { ifErrorUser, resetUser, setUser } from "../store/slice/user";
 import {jwtDecode} from 'jwt-decode'
+import { getUser ,addUser , removeUser} from "../db/user";
+
 
 
 
@@ -20,12 +21,14 @@ import {jwtDecode} from 'jwt-decode'
       sub ----------------------  user's id provided by Google
     */}
 
-    {/* useGoogleLogin giving tokens of expiry time: 1 hr */}
+
+    {/* */}
 
 const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo }) => {
 
        
-        const checkToken = useRef(false);
+        const checkUser = useRef(false);
+        const isUserDB = useRef(false);
         const user = useSelector((state)=>state.user.data);
         const dispatch = useDispatch(); 
         
@@ -33,7 +36,6 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
          {/* GoogleOneTapLogin */}
         useGoogleOneTapLogin({
           onSuccess: (credentialResponse) => {
-            console.log(credentialResponse.credential)
                const decode = jwtDecode(credentialResponse.credential);
                const decodedData = {
                     email: decode.email,
@@ -43,8 +45,7 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
                     picture: decode.picture,
                     email_verified: decode.email_verified
                 }
-
-               dispatch(setUser(decodedData))
+               dispatch(setUser(decodedData));
           },
           onError: () => {
               dispatch(ifErrorUser('one_tap_error'))
@@ -55,8 +56,7 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
             }
           },
           auto_select: true,
-          cancel_on_tap_outside: false,
-          context: 'signin', 
+          cancel_on_tap_outside: true,
           use_fedcm_for_prompt:true,
           disabled: !!user
         });
@@ -65,33 +65,45 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
         {/* Google Login */}
         const googleLogin = useGoogleLogin({
           onSuccess: async (tokenResponse) => {
-            dispatch(storeToken(tokenResponse))
             dispatch(googleAuth(tokenResponse.access_token))
           },
           onError: errorResponse => console.log(errorResponse),
+          ux_mode: 'popup'
           
         });
         
         {/* Google logOut */}
         const googleLogout =()=>{
-          localStorage.removeItem("access_token");
-          dispatch(removeToken());
-          dispatch(resetUser())
+          removeUser();
+          dispatch(resetUser());
+          isUserDB.current = false;
         }
 
-      {/* Checking saved tokens in localStorage */}
-      {/* Edit here as you like , write better logistics */}
+        
+      {/* No need to alter the logistics here */}
+  
       useEffect(()=>{
-          const saved_token = JSON.parse(localStorage.getItem("access_token"));
-          if(!user && !checkToken.current && saved_token && Date.now()<saved_token.expires_in ){
-              dispatch(googleAuth(saved_token.access_token));
-              checkToken.current = true;
-          }
-          else{
-            if(saved_token && Date.now()>=saved_token.expires_in){
-                localStorage.removeItem("access_token");
+        const userHandler=async()=>{
+            if(user && !isUserDB.current){
+              const res = await addUser(user);
+              isUserDB.current = true;
             }
+        }
+        userHandler();
+      },[user]);
+
+      useEffect(()=>{
+        const checkUserHandler=async()=>{
+          if(!checkUser.current){
+              const res = await getUser();
+              if(res){
+                  dispatch(setUser(res));
+                  isUserDB.current = true;
+              }
+              checkUser.current = true;
           }
+        }
+        checkUserHandler();
       },[])
 
   return (

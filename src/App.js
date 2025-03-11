@@ -6,6 +6,8 @@ import logo from "./logo.png";
 import SideBar from "./components/SideBar";
 import MainContent from "./components/MainContent";
 
+
+
 function App() {
 
   const [darkMode, setDarkMode] = useState(false);
@@ -37,15 +39,16 @@ function App() {
           method: "POST",
           headers: {
             Authorization:
-              "Bearer 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",
+              "Bearer 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",
             "HTTP-Referer": "https://www.webstylepress.com",
             "X-Title": "WebStylePress",
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "deepseek/deepseek-r1:free",
-            messages: [{ role: "user", content: message }],
+            model: "deepseek/deepseek-r1-zero:free",
+            messages: [{ role: "user", content: message}],
           }),
+       
         }
       );
       const data = await response.json();
@@ -84,7 +87,7 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowWelcome(false);
-    }, 5000);
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
 

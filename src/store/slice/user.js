@@ -14,7 +14,7 @@ const userSlice = createSlice({
     reducers: {
         setUser: (state,action)=>{
             state.data = action.payload;
-            state.status = 'succeeded'
+            state.status = 'succeeded';
         },
         resetUser: (state)=>{
             state.data = null;
@@ -24,6 +24,7 @@ const userSlice = createSlice({
         // for customized errors, if you like
         ifErrorUser: (state,action)=>{
             state.error = action.payload;
+            state.status = 'failed';
         }
     },
     extraReducers: (builder)=>{

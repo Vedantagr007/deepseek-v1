@@ -2,8 +2,6 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from 'axios';
 
 
-
-
 const googleAuth = createAsyncThunk('googleAuth',async(access_token,thunkAPI)=>{
     try{
         const userInfo = await axios.get(
@@ -16,5 +14,6 @@ const googleAuth = createAsyncThunk('googleAuth',async(access_token,thunkAPI)=>{
         return thunkAPI.rejectWithValue(error.response?.data?.error || error.message);
     }
 })
+
 
 export default googleAuth;
