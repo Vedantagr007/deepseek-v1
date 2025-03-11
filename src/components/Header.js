@@ -73,8 +73,8 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
         });
         
         {/* Google logOut */}
-        const googleLogout =()=>{
-          removeUser();
+        const googleLogout =async()=>{
+          await removeUser();
           dispatch(resetUser());
           isUserDB.current = false;
         }
