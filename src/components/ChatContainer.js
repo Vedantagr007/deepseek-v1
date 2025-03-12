@@ -28,17 +28,15 @@ const ChatContainer = ({
         });
       }
 
-      // Add code block
       parts.push({
         type: 'code',
-        language: match[1] || 'text',
-        content: match[2]
+        language: match[1] || 'javascript',
+        content: match[2].trim()
       });
 
       lastIndex = match.index + match[0].length;
     }
 
-    // Add remaining text
     if (lastIndex < content.length) {
       parts.push({
         type: 'text',

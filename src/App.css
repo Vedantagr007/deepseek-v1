@@ -691,7 +691,7 @@ header {
 }
 
 #response-section {
-
+  color: #000;
   margin-bottom: 15px;
   padding: 35px;
   border-left: 3px solid var(--primary-color);
@@ -904,112 +904,9 @@ body.dragging * {
 
 /* Dark mode styles */
 .dark .game-preview {
-  background: #2d2d2d;
+  background: #2a2a2a;
 }
 
 .dark .preview-title {
   color: #fff;
-}
-
-.dark .code-preview {
-  background: #1e1e1e;
-}
-
-@media (max-width: 768px) {
-  .preview-container {
-    flex-direction: column;
-  }
-  
-  .code-preview,
-  .iframe-container {
-    width: 100%;
-  }
-}
-
-.game-preview-panel {
-  position: fixed;
-  right: 0;
-  top: 0;
-  height: 100vh;
-  background: #fff;
-  border-left: 1px solid #333;
-  display: flex;
-  z-index: 1000;
-  text-align: center;
-}
-
-.resize-handle {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 12px;
-  height: 100%;
-  cursor: ew-resize;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: translateX(-50%);
-}
-
-.resize-handle-bar {
-  width: 4px;
-  height: 100%;
-  background: #555;
-  transition: background-color 0.2s;
-}
-
-.resize-handle:active .resize-handle-bar {
-  background: #007acc;
-}
-
-.preview-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1rem 1rem 1rem 1.5rem;
-  height: 100%;
-  overflow-y: auto;
-}
-
-.code-preview {
-  flex: 1;
-  background: #1e1e1e;
-  border-radius: 4px;
-  border: 1px solid #333;
-  padding: 1rem;
-  overflow: auto;
-}
-
-.code-preview pre {
-  margin: 0;
-  font-family: 'Consolas', monospace;
-  font-size: 14px;
-  line-height: 1.5;
-  color: #d4d4d4;
-  white-space: pre-wrap;
-}
-
-.game-container {
-  flex: 1;
-  min-height: 300px;
-  background: #fff;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.game-container iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-/* Dragging state styles */
-body.dragging {
-  cursor: ew-resize !important;
-  user-select: none;
-}
-
-body.dragging * {
-  cursor: ew-resize !important;
 }
