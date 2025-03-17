@@ -1,6 +1,111 @@
-import React from "react";
+"use client"
+import React, { useRef } from "react";
+import { useGoogleLogin , useGoogleOneTapLogin } from '@react-oauth/google';
+import { useDispatch, useSelector } from 'react-redux';
+import googleAuth from '../store/api/authReducer';
+import { useEffect } from 'react';
+import { ifErrorUser, resetUser, setUser } from "../store/slice/user";
+import {jwtDecode} from 'jwt-decode'
+import { getUser ,addUser , removeUser} from "../db/user";
+
+
+
+
+    {/*
+      User data format being fetched from Google Login:
+      email -------- user's email
+      email_verified    ------ if user did email verification yet or nah
+      given_name  ----------- user's gmail name
+      name ----------------- user's full name
+      picture ---------------- url of user's profile picture
+      sub ----------------------  user's id provided by Google
+    */}
+
+
+    {/* */}
 
 const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo }) => {
+
+       
+        const checkUser = useRef(false);
+        const isUserDB = useRef(false);
+        const user = useSelector((state)=>state.user.data);
+        const dispatch = useDispatch(); 
+        
+
+         {/* GoogleOneTapLogin */}
+        useGoogleOneTapLogin({
+          onSuccess: (credentialResponse) => {
+               const decode = jwtDecode(credentialResponse.credential);
+               const decodedData = {
+                    email: decode.email,
+                    sub: decode.sub,
+                    given_name: decode.given_name,
+                    name: decode.name,
+                    picture: decode.picture,
+                    email_verified: decode.email_verified
+                }
+               dispatch(setUser(decodedData));
+          },
+          onError: () => {
+              dispatch(ifErrorUser('one_tap_error'))
+          },
+          promptMomentNotification: (notification) => {
+            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                  dispatch(ifErrorUser('one_tap_failed'))
+            }
+          },
+          auto_select: true,
+          cancel_on_tap_outside: true,
+          use_fedcm_for_prompt:true,
+          disabled: !!user
+        });
+      
+
+        {/* Google Login */}
+        const googleLogin = useGoogleLogin({
+          onSuccess: async (tokenResponse) => {
+            dispatch(googleAuth(tokenResponse.access_token))
+          },
+          onError: errorResponse => console.log(errorResponse),
+          ux_mode: 'popup'
+          
+        });
+        
+        {/* Google logOut */}
+        const googleLogout =async()=>{
+          await removeUser();
+          dispatch(resetUser());
+          isUserDB.current = false;
+        }
+
+        
+      {/* No need to alter the logistics here */}
+  
+      useEffect(()=>{
+        const userHandler=async()=>{
+            if(user && !isUserDB.current){
+              const res = await addUser(user);
+              isUserDB.current = true;
+            }
+        }
+        userHandler();
+      },[user]);
+
+      useEffect(()=>{
+        const checkUserHandler=async()=>{
+          if(!checkUser.current){
+              const res = await getUser();
+              if(res){
+                  dispatch(setUser(res));
+                  isUserDB.current = true;
+              }
+              checkUser.current = true;
+          }
+        }
+        checkUserHandler();
+      },[])
+
   return (
     <header>
       <button className="sidebar-toggle" onClick={toggleSidebar}>
@@ -40,7 +145,20 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
         </button>
-        <button className="login-button">Login</button>
+        {user ? (<>
+            {/* Just a trial*/ }
+            <svg width="40" height="40">
+              <defs>
+                  <clipPath id="circleMask">
+                      <circle cx="20" cy="20" r="20"></circle>
+                  </clipPath>
+              </defs>
+             {user.picture ? ( <image href={user.picture}  width="40" height="40" clipPath="url(#circleMask)"></image>):(<></>)}
+            </svg>
+            <h4>{user.name} (Made it frankly for testing)</h4>
+            <button className="login-button" onClick={googleLogout}>Sign out</button>
+        </>):(
+        <button className="login-button" onClick={googleLogin}>Login</button>)}
         <button className="theme-toggle" onClick={toggleDarkMode}>
           {darkMode ? (
             <svg
