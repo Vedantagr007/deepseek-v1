@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { marked } from "marked";
 import "./App.css";
 import logo from "./logo.png";
-import SideBar from "./components/SideBar";
+// import SideBar from "./components/SideBar";
 import MainContent from "./components/MainContent";
 import GamePreview from "./components/GamePreview";
 
