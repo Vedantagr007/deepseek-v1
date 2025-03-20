@@ -59,9 +59,9 @@ function App() {
           method: "POST",
           headers: {
             Authorization:
-              `Bearer ${process.env.REACT_APP_API_KEY}`,
-            "HTTP-Referer": `${process.env.REACT_APP_HTTP_REFERER}`,
-            "X-Title": `${process.env.REACT_APP_X_TITLE}`,
+              "Bearer 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",
+            "HTTP-Referer": "https://www.webstylepress.com",
+            "X-Title": "WebStylePress",
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
