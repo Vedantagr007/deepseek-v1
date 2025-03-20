@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from "react";
 import { marked } from "marked";
 import "./App.css";
@@ -29,53 +30,30 @@ function App() {
   };
   const toggleVersionPopup = () => setVersionPopupOpen(!versionPopupOpen);
 
-  const startNewChat = () => {
-    const newChatId = Date.now().toString();
-    setChats([{ id: newChatId, messages: [] }, ...chats]);
-    setCurrentChatId(newChatId);
-    setShowWelcome(false);
-  };
-
   const handleSendMessage = async () => {
     if (!message) return;
-    const userMessage = { role: 'user', content: message };
-    const updatedChats = chats.map(chat => {
-      if (chat.id === currentChatId) {
-        return {
-          ...chat,
-          messages: [...chat.messages, userMessage]
-        };
-      }
-      return chat;
-    });
-    setChats(updatedChats);
     setChatResponse("Loading...");
-    setGameCode("");
-
     try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization:
-              "Bearer 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",
-            "HTTP-Referer": "https://www.webstylepress.com",
-            "X-Title": "WebStylePress",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: `${process.env.REACT_APP_MODEL}`,
-            messages: [
-              {
-                role: 'system',
-                content: 'You are a game development assistant. When asked to create a game, provide a detailed explanation and include an HTML/JavaScript game code snippet.'
-              },
-              { role: 'user', content: message }
-            ],
-          }),
-        }
-      );
+      const response = await fetch(`${process.env.REACT_APP_API_URL}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
+          "HTTP-Referer": `${process.env.REACT_APP_HTTP_REFERER}`,
+          "X-Title": `${process.env.REACT_APP_X_TITLE}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: `${process.env.REACT_APP_MODEL}`,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a game development assistant. When asked to create a game, provide a detailed explanation and include an HTML/JavaScript game code snippet.",
+            },
+            { role: "user", content: message },
+          ],
+        }),
+      });
       const data = await response.json();
       const markdownText =
         data.choices?.[0]?.message?.content || "No response received.";
@@ -129,24 +107,20 @@ function App() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowWelcome(false);
-    }, 5000);
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <div className={`app ${darkMode ? "dark" : "light"}`}>
-      <SideBar
+      {/* <SideBar
         sideBarOpen={sidebarOpen}
         toggleSideBar={toggleSidebar}
         toggleVersionPopUp={toggleVersionPopup}
         toggleSearch={toggleSearch}
         logo={logo}
         handleOverlayClick={handleOverlayClick}
-        chats={chats}
-        currentChatId={currentChatId}
-        setCurrentChatId={setCurrentChatId}
-        startNewChat={startNewChat}
-      />
+      /> */}
       <MainContent
         darkMode={darkMode}
         toggleDarkMode={toggleDarkMode}
@@ -165,8 +139,6 @@ function App() {
         handleSendMessage={handleSendMessage}
         games={games}
         logo={logo}
-        chats={chats}
-        currentChatId={currentChatId}
       />
       <GamePreview gameCode={gameCode}/>
     </div>

@@ -1,55 +1,95 @@
-import React from "react";
+"use client";
+import React, { useRef, useEffect } from "react";
+import { useGoogleLogin, useGoogleOneTapLogin } from "@react-oauth/google";
+import { useDispatch, useSelector } from "react-redux";
+import googleAuth from "../store/api/authReducer";
+import { ifErrorUser, setUser } from "../store/slice/user";
+import { jwtDecode } from "jwt-decode";
+import { getUser, addUser } from "../db/user";
 
-const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo }) => {
-  // Define the color style based on dark mode
-  const colorStyle = darkMode ? { color: 'white' } : {};
+const Header = ({
+  darkMode,
+  toggleDarkMode,
+  toggleSidebar,
+  toggleSearch,
+  logo,
+}) => {
+  const checkUser = useRef(false);
+  const isUserDB = useRef(false);
+  const user = useSelector((state) => state.user.data);
+  const dispatch = useDispatch();
+  const colorStyle = darkMode ? { color: "white" } : {};
+
+  /* Google One Tap Login */
+  useGoogleOneTapLogin({
+    onSuccess: (credentialResponse) => {
+      const decode = jwtDecode(credentialResponse.credential);
+      const decodedData = {
+        email: decode.email,
+        sub: decode.sub,
+        given_name: decode.given_name,
+        name: decode.name,
+        picture: decode.picture,
+        email_verified: decode.email_verified,
+      };
+      dispatch(setUser(decodedData));
+    },
+    onError: () => {
+      dispatch(ifErrorUser("one_tap_error"));
+    },
+    promptMomentNotification: (notification) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        dispatch(ifErrorUser("one_tap_failed"));
+      }
+    },
+    auto_select: true,
+    cancel_on_tap_outside: true,
+    use_fedcm_for_prompt: true,
+    disabled: !!user,
+  });
+
+  /* Google Login */
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      dispatch(googleAuth(tokenResponse.access_token));
+    },
+    onError: (errorResponse) => console.log(errorResponse),
+    ux_mode: "popup",
+  });
+
+  /* User handling effects */
+  useEffect(() => {
+    const userHandler = async () => {
+      if (user && !isUserDB.current) {
+        await addUser(user);
+        isUserDB.current = true;
+      }
+    };
+    userHandler();
+  }, [user]);
+
+  useEffect(() => {
+    const checkUserHandler = async () => {
+      if (!checkUser.current) {
+        const res = await getUser();
+        if (res) {
+          dispatch(setUser(res));
+          isUserDB.current = true;
+        }
+        checkUser.current = true;
+      }
+    };
+    checkUserHandler();
+  }, []);
+
   return (
-    <header>
-      <button className="sidebar-toggle" onClick={toggleSidebar} style={colorStyle}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+    <header className="header">
+      <div className="header-left-controls">
+        <button
+          className="theme-toggle"
+          onClick={toggleDarkMode}
+          style={colorStyle}
         >
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="9" y1="3" x2="9" y2="21"></line>
-        </svg>
-      </button>
-      <div className="brand" style={{transform: "translateX(75px)"}}>
-        <img src={logo} alt="GameCre8 Logo" className="brand-logo text-2xl" />
-        <span style={{ 
-          fontWeight: 'bold', 
-          fontSize: '1.5em',
-          background: 'linear-gradient(to right, #8b5cf6, #ec4899)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent'
-        }}>GameCre8</span>
-      </div>
-      <div className="header-controls larger">
-        <button className="search-button" onClick={toggleSearch} style={colorStyle}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </button>
-        <button className="login-button" style={{...colorStyle}}>Login</button>
-        <button className="theme-toggle" onClick={toggleDarkMode} style={colorStyle}>
           {darkMode ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -88,6 +128,50 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
             </svg>
           )}
         </button>
+      </div>
+
+      <div className="header-brand">
+        <img src={logo} alt="GameCre8 Logo" className="brand-logo" />
+        <span
+          className="brand-title"
+          style={{
+            fontWeight: "bold",
+            background: "linear-gradient(to right, #8b5cf6, #ec4899)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          GameCre8
+        </span>
+      </div>
+
+      <div className="header-controls">
+        {user ? (
+          <div className="user-info">
+            <svg width="30" height="30">
+              <defs>
+                <clipPath id="circleMask">
+                  <circle cx="13" cy="13" r="13"></circle>
+                </clipPath>
+              </defs>
+              {user.picture && (
+                <image
+                  href={user.picture}
+                  width="30"
+                  height="30"
+                  style={{ clipPath: "url(#circleMask)" }}
+                />
+              )}
+            </svg>
+          </div>
+        ) : (
+          <button
+            className="login-button"
+            onClick={googleLogin}
+          >
+            <img src="./google.svg" alt="google" />
+          </button>
+        )}
       </div>
     </header>
   );

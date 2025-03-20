@@ -1,7 +1,6 @@
 import React from "react";
 import WelcomeMessage from "./WelcomeMessage";
 import GameSelection from "./GameSelection";
-import CodeEditor from "./CodeEditor";
 
 const ChatContainer = ({
   showWelcome,
@@ -62,17 +61,6 @@ const ChatContainer = ({
         {currentChat?.messages.map((message, index) => (
           <div key={index} className={`chat-message ${message.role}`}>
             <div className="message-content">
-              {processMessage(message.content).map((part, i) => (
-                part.type === 'code' ? (
-                  <CodeEditor 
-                    key={i}
-                    code={part.content}
-                    language={part.language}
-                  />
-                ) : (
-                  <div key={i} dangerouslySetInnerHTML={{ __html: part.content }} />
-                )
-              ))}
             </div>
           </div>
         ))}

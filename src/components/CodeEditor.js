@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Editor from '@monaco-editor/react';
+// import Editor from '@monaco-editor/react';
 
 const CodeEditor = ({ code, language }) => {
   const [displayedCode, setDisplayedCode] = useState('');
@@ -49,7 +49,7 @@ const CodeEditor = ({ code, language }) => {
 
   return (
     <div className="code-editor-container rounded-md overflow-hidden border border-gray-700">
-      <Editor
+      <CodeEditor
         height="200px"
         language={language || 'javascript'}
         theme="vs-dark"
