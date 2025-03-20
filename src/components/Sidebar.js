@@ -27,20 +27,30 @@ const SideBar = ({
           <div className="sidebar-header">
             <div className="brand">
               <img src={logo} alt="GameCre8 Logo" className="brand-logo" />
-              <h1 className={darkMode ? "text-white" : "text-black"}>GameCre8</h1>
+              <h1
+                style={{
+                  fontWeight: "bold",
+                  fontSize: "1.2em",
+                  background: "linear-gradient(to right, #8b5cf6, #ec4899)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                }}
+              >
+                GameCre8
+              </h1>
             </div>
           </div>
           <div className="button-group space-y-0">
-            <button 
+            <button
               className="new-chat-button borderless w-full mb-0 p-0"
               onClick={startNewChat}
             >
               <svg
+                xmlns="http://www.w3.org/2000/svg"
                 width="24"
                 height="24"
                 viewBox="0 0 24 24"
                 fill="none"
-                xmlns="http://www.w3.org/2000/svg"
                 className={darkMode ? "stroke-white" : "stroke-black"}
               >
                 <path
@@ -49,7 +59,9 @@ const SideBar = ({
                   strokeWidth="2"
                 />
               </svg>
-              <span className={darkMode ? "text-white" : "text-black"}>New chat</span>
+              <span className={darkMode ? "text-white" : "text-black"}>
+                New chat
+              </span>
             </button>
             <button className="new-chat-button borderless w-full mb-0 p-0">
               <svg
@@ -75,10 +87,7 @@ const SideBar = ({
               </span>
             </button>
           </div>
-          <button
-            className="mobile-close-button mt-1"
-            onClick={toggleSideBar}
-          >
+          <button className="mobile-close-button mt-1" onClick={toggleSideBar}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"

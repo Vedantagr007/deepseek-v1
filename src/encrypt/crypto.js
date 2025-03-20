@@ -1,9 +1,5 @@
 import CryptoJS from "crypto-js";
 
-
-{/* Here is for encrypting user's data*/}
-
-
 const SECRET_KEY = "gamecre8";
 
 export const encryptData = (data) => {

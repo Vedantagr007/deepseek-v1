@@ -1,15 +1,13 @@
-"use client"
+"use client";
 import React, { useState, useEffect } from "react";
 import { marked } from "marked";
 import "./App.css";
 import logo from "./logo.png";
-import SideBar from "./components/SideBar";
+// import SideBar from "./components/SideBar";
 import MainContent from "./components/MainContent";
-
-
+import GamePreview from "./components/GamePreview";
 
 function App() {
-
   const [darkMode, setDarkMode] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [message, setMessage] = useState("");
@@ -18,6 +16,9 @@ function App() {
   const [selectedGames, setSelectedGames] = useState([]);
   const [showWelcome, setShowWelcome] = useState(true);
   const [chatResponse, setChatResponse] = useState("");
+  const [chats, setChats] = useState([]);
+  const [currentChatId, setCurrentChatId] = useState(null);
+  const [gameCode, setGameCode] = useState("");
 
   const toggleDarkMode = () => setDarkMode(!darkMode);
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
@@ -33,27 +34,46 @@ function App() {
     if (!message) return;
     setChatResponse("Loading...");
     try {
-      const response = await fetch(
-        "https://openrouter.ai/api/v1/chat/completions",
-        {
-          method: "POST",
-          headers: {
-            Authorization:
-              "Bearer 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",
-            "HTTP-Referer": "https://www.webstylepress.com",
-            "X-Title": "WebStylePress",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "deepseek/deepseek-r1-zero:free",
-            messages: [{ role: "user", content: message}],
-          }),
-       
-        }
-      );
+      const response = await fetch(`${process.env.REACT_APP_API_URL}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.REACT_APP_API_KEY}`,
+          "HTTP-Referer": `${process.env.REACT_APP_HTTP_REFERER}`,
+          "X-Title": `${process.env.REACT_APP_X_TITLE}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: `${process.env.REACT_APP_MODEL}`,
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a game development assistant. When asked to create a game, provide a detailed explanation and include an HTML/JavaScript game code snippet.",
+            },
+            { role: "user", content: message },
+          ],
+        }),
+      });
       const data = await response.json();
       const markdownText =
         data.choices?.[0]?.message?.content || "No response received.";
+      
+      const gameMatch = markdownText.match(/```html([\s\S]*?)```/);
+      if (gameMatch) {
+        setGameCode(gameMatch[1].trim());
+      }
+
+      const botMessage = { role: 'assistant', content: marked.parse(markdownText) };
+
+      setChats(chats.map(chat => {
+        if (chat.id === currentChatId) {
+          return {
+            ...chat,
+            messages: [...chat.messages, botMessage]
+          };
+        }
+        return chat;
+      }));
       setChatResponse(marked.parse(markdownText));
     } catch (error) {
       setChatResponse("Error: " + error.message);
@@ -92,38 +112,37 @@ function App() {
   }, []);
 
   return (
-    
-      <div className={`app ${darkMode ? "dark" : "light"}`}>
-        <SideBar
-          sideBarOpen={sidebarOpen}
-          toggleSideBar={toggleSidebar}
-          toggleVersionPopUp={toggleVersionPopup}
-          toggleSearch={toggleSearch}
-          logo={logo}
-          handleOverlayClick={handleOverlayClick}
-        />
-        <MainContent
-          darkMode={darkMode}
-          toggleDarkMode={toggleDarkMode}
-          sidebarOpen={sidebarOpen}
-          toggleSidebar={toggleSidebar}
-          searchOpen={searchOpen}
-          toggleSearch={toggleSearch}
-          versionPopupOpen={versionPopupOpen}
-          toggleVersionPopup={toggleVersionPopup}
-          showWelcome={showWelcome}
-          selectedGames={selectedGames}
-          toggleGameSelection={toggleGameSelection}
-          chatResponse={chatResponse}
-          message={message}
-          setMessage={setMessage}
-          handleSendMessage={handleSendMessage}
-          games={games}
-          logo={logo}
-        />
-      </div>
+    <div className={`app ${darkMode ? "dark" : "light"}`}>
+      {/* <SideBar
+        sideBarOpen={sidebarOpen}
+        toggleSideBar={toggleSidebar}
+        toggleVersionPopUp={toggleVersionPopup}
+        toggleSearch={toggleSearch}
+        logo={logo}
+        handleOverlayClick={handleOverlayClick}
+      /> */}
+      <MainContent
+        darkMode={darkMode}
+        toggleDarkMode={toggleDarkMode}
+        sidebarOpen={sidebarOpen}
+        toggleSidebar={toggleSidebar}
+        searchOpen={searchOpen}
+        toggleSearch={toggleSearch}
+        versionPopupOpen={versionPopupOpen}
+        toggleVersionPopup={toggleVersionPopup}
+        showWelcome={showWelcome}
+        selectedGames={selectedGames}
+        toggleGameSelection={toggleGameSelection}
+        chatResponse={chatResponse}
+        message={message}
+        setMessage={setMessage}
+        handleSendMessage={handleSendMessage}
+        games={games}
+        logo={logo}
+      />
+      <GamePreview gameCode={gameCode}/>
+    </div>
   );
-  
 }
 
 export default App;

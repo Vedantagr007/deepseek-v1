@@ -1,165 +1,95 @@
-"use client"
-import React, { useRef } from "react";
-import { useGoogleLogin , useGoogleOneTapLogin } from '@react-oauth/google';
-import { useDispatch, useSelector } from 'react-redux';
-import googleAuth from '../store/api/authReducer';
-import { useEffect } from 'react';
-import { ifErrorUser, resetUser, setUser } from "../store/slice/user";
-import {jwtDecode} from 'jwt-decode'
-import { getUser ,addUser , removeUser} from "../db/user";
+"use client";
+import React, { useRef, useEffect } from "react";
+import { useGoogleLogin, useGoogleOneTapLogin } from "@react-oauth/google";
+import { useDispatch, useSelector } from "react-redux";
+import googleAuth from "../store/api/authReducer";
+import { ifErrorUser, setUser } from "../store/slice/user";
+import { jwtDecode } from "jwt-decode";
+import { getUser, addUser } from "../db/user";
 
+const Header = ({
+  darkMode,
+  toggleDarkMode,
+  toggleSidebar,
+  toggleSearch,
+  logo,
+}) => {
+  const checkUser = useRef(false);
+  const isUserDB = useRef(false);
+  const user = useSelector((state) => state.user.data);
+  const dispatch = useDispatch();
+  const colorStyle = darkMode ? { color: "white" } : {};
 
+  /* Google One Tap Login */
+  useGoogleOneTapLogin({
+    onSuccess: (credentialResponse) => {
+      const decode = jwtDecode(credentialResponse.credential);
+      const decodedData = {
+        email: decode.email,
+        sub: decode.sub,
+        given_name: decode.given_name,
+        name: decode.name,
+        picture: decode.picture,
+        email_verified: decode.email_verified,
+      };
+      dispatch(setUser(decodedData));
+    },
+    onError: () => {
+      dispatch(ifErrorUser("one_tap_error"));
+    },
+    promptMomentNotification: (notification) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        dispatch(ifErrorUser("one_tap_failed"));
+      }
+    },
+    auto_select: true,
+    cancel_on_tap_outside: true,
+    use_fedcm_for_prompt: true,
+    disabled: !!user,
+  });
 
+  /* Google Login */
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      dispatch(googleAuth(tokenResponse.access_token));
+    },
+    onError: (errorResponse) => console.log(errorResponse),
+    ux_mode: "popup",
+  });
 
-    {/*
-      User data format being fetched from Google Login:
-      email -------- user's email
-      email_verified    ------ if user did email verification yet or nah
-      given_name  ----------- user's gmail name
-      name ----------------- user's full name
-      picture ---------------- url of user's profile picture
-      sub ----------------------  user's id provided by Google
-    */}
+  /* User handling effects */
+  useEffect(() => {
+    const userHandler = async () => {
+      if (user && !isUserDB.current) {
+        await addUser(user);
+        isUserDB.current = true;
+      }
+    };
+    userHandler();
+  }, [user]);
 
-
-    {/* */}
-
-const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo }) => {
-
-       
-        const checkUser = useRef(false);
-        const isUserDB = useRef(false);
-        const user = useSelector((state)=>state.user.data);
-        const dispatch = useDispatch(); 
-        
-
-         {/* GoogleOneTapLogin */}
-        useGoogleOneTapLogin({
-          onSuccess: (credentialResponse) => {
-               const decode = jwtDecode(credentialResponse.credential);
-               const decodedData = {
-                    email: decode.email,
-                    sub: decode.sub,
-                    given_name: decode.given_name,
-                    name: decode.name,
-                    picture: decode.picture,
-                    email_verified: decode.email_verified
-                }
-               dispatch(setUser(decodedData));
-          },
-          onError: () => {
-              dispatch(ifErrorUser('one_tap_error'))
-          },
-          promptMomentNotification: (notification) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                  dispatch(ifErrorUser('one_tap_failed'))
-            }
-          },
-          auto_select: true,
-          cancel_on_tap_outside: true,
-          use_fedcm_for_prompt:true,
-          disabled: !!user
-        });
-      
-
-        {/* Google Login */}
-        const googleLogin = useGoogleLogin({
-          onSuccess: async (tokenResponse) => {
-            dispatch(googleAuth(tokenResponse.access_token))
-          },
-          onError: errorResponse => console.log(errorResponse),
-          ux_mode: 'popup'
-          
-        });
-        
-        {/* Google logOut */}
-        const googleLogout =async()=>{
-          await removeUser();
-          dispatch(resetUser());
-          isUserDB.current = false;
+  useEffect(() => {
+    const checkUserHandler = async () => {
+      if (!checkUser.current) {
+        const res = await getUser();
+        if (res) {
+          dispatch(setUser(res));
+          isUserDB.current = true;
         }
-
-        
-      {/* No need to alter the logistics here */}
-  
-      useEffect(()=>{
-        const userHandler=async()=>{
-            if(user && !isUserDB.current){
-              const res = await addUser(user);
-              isUserDB.current = true;
-            }
-        }
-        userHandler();
-      },[user]);
-
-      useEffect(()=>{
-        const checkUserHandler=async()=>{
-          if(!checkUser.current){
-              const res = await getUser();
-              if(res){
-                  dispatch(setUser(res));
-                  isUserDB.current = true;
-              }
-              checkUser.current = true;
-          }
-        }
-        checkUserHandler();
-      },[])
+        checkUser.current = true;
+      }
+    };
+    checkUserHandler();
+  }, []);
 
   return (
-    <header>
-      <button className="sidebar-toggle" onClick={toggleSidebar}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+    <header className="header">
+      <div className="header-left-controls">
+        <button
+          className="theme-toggle"
+          onClick={toggleDarkMode}
+          style={colorStyle}
         >
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="9" y1="3" x2="9" y2="21"></line>
-        </svg>
-      </button>
-      <div className="brand">
-        <img src={logo} alt="GameCre8 Logo" className="brand-logo" />
-        <span>GameCre8</span>
-      </div>
-      <div className="header-controls larger">
-        <button className="search-button" onClick={toggleSearch}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-        </button>
-        {user ? (<>
-            {/* Just a trial*/ }
-            <svg width="40" height="40">
-              <defs>
-                  <clipPath id="circleMask">
-                      <circle cx="20" cy="20" r="20"></circle>
-                  </clipPath>
-              </defs>
-             {user.picture ? ( <image href={user.picture}  width="40" height="40" clipPath="url(#circleMask)"></image>):(<></>)}
-            </svg>
-            <h4>{user.name} (Made it frankly for testing)</h4>
-            <button className="login-button" onClick={googleLogout}>Sign out</button>
-        </>):(
-        <button className="login-button" onClick={googleLogin}>Login</button>)}
-        <button className="theme-toggle" onClick={toggleDarkMode}>
           {darkMode ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -198,6 +128,50 @@ const Header = ({ darkMode, toggleDarkMode, toggleSidebar, toggleSearch, logo })
             </svg>
           )}
         </button>
+      </div>
+
+      <div className="header-brand">
+        <img src={logo} alt="GameCre8 Logo" className="brand-logo" />
+        <span
+          className="brand-title"
+          style={{
+            fontWeight: "bold",
+            background: "linear-gradient(to right, #8b5cf6, #ec4899)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          GameCre8
+        </span>
+      </div>
+
+      <div className="header-controls">
+        {user ? (
+          <div className="user-info">
+            <svg width="30" height="30">
+              <defs>
+                <clipPath id="circleMask">
+                  <circle cx="13" cy="13" r="13"></circle>
+                </clipPath>
+              </defs>
+              {user.picture && (
+                <image
+                  href={user.picture}
+                  width="30"
+                  height="30"
+                  style={{ clipPath: "url(#circleMask)" }}
+                />
+              )}
+            </svg>
+          </div>
+        ) : (
+          <button
+            className="login-button"
+            onClick={googleLogin}
+          >
+            <img src="./google.svg" alt="google" />
+          </button>
+        )}
       </div>
     </header>
   );

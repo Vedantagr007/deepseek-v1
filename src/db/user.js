@@ -1,5 +1,6 @@
 import { encryptData , decryptData } from "../encrypt/crypto";
 
+
 {/*Here change as as you like*/}
 const db_name = "meta";
 const store_name = "ssn";
